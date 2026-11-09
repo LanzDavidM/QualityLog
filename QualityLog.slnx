@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="QualityLog.Test/QualityLog.Test.csproj" Id="8b041667-e87c-4e44-8f2d-00116aa47fd3" />
   <Project Path="QualityLog/QualityLog.csproj" />
 </Solution>
