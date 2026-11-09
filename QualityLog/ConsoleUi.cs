@@ -1,6 +1,4 @@
-﻿using System.Net.NetworkInformation;
-using System.Numerics;
-using System.Threading.Channels;
+﻿using System.Globalization;
 
 namespace QualityLog;
 
@@ -25,11 +23,9 @@ public static class ConsoleUi
         string inspector = GetString(Math.Abs(width), name);
         InspectionResult result = GetResult();
         (name, width) = _columns[5];
-        string? defect = null;
-        if (result != InspectionResult.Pass)
-        {
-            defect = GetString(Math.Abs(width), name);
-        }
+        string? defect = result == InspectionResult.Pass ? 
+            null : 
+            GetString(Math.Abs(width), name);
 
         return new(partNumber, date, shift, inspector, result, defect);
     }
@@ -43,17 +39,11 @@ public static class ConsoleUi
             string returnName = Console.ReadLine() ?? "";
             returnName = returnName.Trim();
             if (returnName.Length > maxLength)
-            {
-                Console.WriteLine($"\nThe {name} must be no longer than {maxLength} long, try again");
-            }
+                Console.WriteLine($"\nThe {name} must be no longer than {maxLength} characters long, try again");
             else if (returnName.Length == 0)
-            {
                 Console.WriteLine($"\nYou can not enter an empty {name}, try again");
-            }
             else
-            {
                 return returnName;
-            }
         }
     }
     
@@ -62,14 +52,15 @@ public static class ConsoleUi
         Console.Clear();
         while (true)
         {
-            Console.Write("Enter date (MM/DD/YYYY):");
-            if (DateOnly.TryParse(Console.ReadLine(), out DateOnly date))
+            Console.Write("Enter date (MM/DD/YYYY) that is not in the future: ");
+            if (DateOnly.TryParseExact(Console.ReadLine(), "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly date)
+                && date <= DateOnly.FromDateTime(DateTime.Today))
             {
                 return date;
             }
             else
             {
-                Console.WriteLine($"\n{date} is not a valid date, try again");
+                Console.WriteLine("\nNot a valid date, try again");
             }
         }
     }
@@ -90,7 +81,7 @@ public static class ConsoleUi
             {
                 return (Shift)choice;
             }
-            Console.WriteLine("Not a valid Shift, try again");
+            Console.WriteLine("\nNot a valid Shift, try again");
         }
     }
 
@@ -110,17 +101,17 @@ public static class ConsoleUi
             {
                 return (InspectionResult)choice;
             }
-            Console.WriteLine("Not a valid Inspection Result, try again");
+            Console.WriteLine("\nNot a valid Inspection Result, try again");
         }
     }
 
-    public static void DisplayAllRecords(InspectionLog Records)
+    public static void DisplayAllRecords(InspectionLog records)
     {
         Console.Clear();
         DisplayDivider();
         DisplayHeader();
         DisplayDivider();
-        IReadOnlyList<Inspection> log = Records.GetAll();
+        IReadOnlyList<Inspection> log = records.GetAll();
         if (log.Count == 0)
         {
             Console.WriteLine("No inspections recorded");
@@ -161,7 +152,7 @@ public static class ConsoleUi
     private static void DisplayRow(Inspection entry)
     {
         Console.Write($"{PadCell(entry.PartNumber, _columns[0].Width)} ");
-        Console.Write($"{PadCell(entry.Date.ToString("MM/dd/yyyy"), _columns[1].Width)} ");
+        Console.Write($"{PadCell(entry.Date.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture), _columns[1].Width)} ");
         Console.Write($"{PadCell(entry.Shift.ToString(), _columns[2].Width)} ");
         Console.Write($"{PadCell(entry.Inspector, _columns[3].Width)} ");
         Console.Write($"{PadCell(entry.Result.ToString(), _columns[4].Width)} ");
@@ -178,4 +169,65 @@ public static class ConsoleUi
             ? text.PadRight(-width)
             : text.PadLeft(width);
     }
+
+    public static void DisplayReports(IReadOnlyList<Inspection> log)
+    {
+        Console.Clear();
+        DisplayPassRate(InspectionReport.PassRate(log));
+        DisplayByType(InspectionReport.DefectsByType(log));
+        DisplayResultsByShift(InspectionReport.ResultsByShift(log));
+        DisplayMostCommonDefect(InspectionReport.MostCommonDefects(log));
+        Console.Write("\nPress any key to continue");
+        Console.ReadKey(true);
+    }
+
+    private static void DisplayPassRate(double rateAsDecimal)
+    {
+        Console.WriteLine($"Percentage of tests that passed: {rateAsDecimal:P1}");
+    }
+
+    private static void DisplayByType(IReadOnlyList<KeyValuePair<string, int>> defects)
+    {
+        Console.WriteLine("\nAll defects totaled:");
+
+        if (defects.Count == 0)
+        {
+            Console.WriteLine("No defects reported");
+            return;
+        }
+
+        foreach (var defect in defects)
+        {
+            Console.WriteLine($"{defect.Key}: {defect.Value}");
+        }
+    }
+
+    private static void DisplayResultsByShift(IReadOnlyCollection<ShiftSummary> results)
+    {
+        Console.WriteLine("\nResults by shift:");
+        foreach (ShiftSummary shift in results)
+        {
+            Console.Write($"{PadCell(shift.Shift.ToString(), _columns[2].Width)} ");
+            Console.Write($"{shift.Passed}-Passed ");
+            Console.Write($"{shift.Failed}-Failed ");
+            Console.WriteLine($"{shift.Reworked}-Reworked");
+        }
+    }
+
+    private static void DisplayMostCommonDefect(IReadOnlyList<string> defects)
+    {
+        Console.WriteLine("\nThe most common defect(s):");
+
+        if (defects.Count == 0)
+        {
+            Console.WriteLine("No defects found");
+            return;
+        }
+
+        foreach (string entry in defects)
+        {
+            Console.WriteLine(entry);
+        }
+    }
+
 }
