@@ -84,7 +84,14 @@ public class InspectionReportTests
 
         IReadOnlyList<string> result = InspectionReport.MostCommonDefects(log);
 
-        Assert.Equal(new[] {"Holes", "Missing Tab"}, result);
+        var expected = new List<string>
+        {
+            "Holes",
+            "Missing Tab"
+        };
+
+
+        Assert.Equal(expected, result);
     }
 
     [Fact]
