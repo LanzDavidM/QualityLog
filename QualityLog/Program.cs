@@ -11,6 +11,7 @@ while (running)
     Console.WriteLine("1. Add inspection");
     Console.WriteLine("2. View all");
     Console.WriteLine("3. Display Reports");
+    Console.WriteLine("4. Json Test");
     Console.Write("\nPlease enter your selection (x to exit): ");
     char key = char.ToLower(Console.ReadKey(true).KeyChar);
     switch (key)
@@ -23,6 +24,9 @@ while (running)
             break;
         case '3':
             ConsoleUi.DisplayReports(qualityLog.GetAll());
+            break;
+        case '4':
+            InspectionStorage.Save(qualityLog.GetAll(), "Test.txt");
             break;
         case 'x':
             running = false;
