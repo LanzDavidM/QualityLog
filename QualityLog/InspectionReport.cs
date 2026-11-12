@@ -26,9 +26,9 @@ public static class InspectionReport
         return [.. defects.OrderByDescending(c => c.Value).ThenBy(c => c.Key)];
     }
 
-    public static IReadOnlyList<ShiftSummary>ResultsByShift(IReadOnlyList<Inspection> log)
+    public static IReadOnlyList<ShiftSummary> ResultsByShift(IReadOnlyList<Inspection> log)
     {
-       List<ShiftSummary> results = [];
+        List<ShiftSummary> results = [];
 
         foreach (Shift shift in Enum.GetValues<Shift>())
         {

@@ -1,8 +1,9 @@
 ﻿namespace QualityLog;
 
-public class InspectionLog
+
+public class InspectionLog(List<Inspection> records)
 {
-    private readonly List<Inspection> _inspections = [];
+    private readonly List<Inspection> _inspections = records;
 
     public int Count => _inspections.Count;
 

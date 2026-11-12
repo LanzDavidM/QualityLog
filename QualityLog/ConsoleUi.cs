@@ -4,28 +4,49 @@ namespace QualityLog;
 
 public static class ConsoleUi
 {
-    private static readonly List<(string Header, int Width)> _columns = [
-        ("Part Number", -15),
-        ("Date",        -10),
-        ("Shift",        -6),
-        ("Inspector",   -20),
-        ("Result",       -6),
-        ("Defect Type", -20)
-        ];
+
+    //ConsoleUi.ShowError(ex.Message);
+    public static void ShowError(string message)
+    {
+        Console.Clear();
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.BackgroundColor = ConsoleColor.Red;
+        DisplayDivider();
+        Console.WriteLine(message);
+        DisplayDivider();
+        Console.ResetColor();
+        Console.ReadKey(true);
+    }
+
+    public static MainMenuOptions DisplayMainMenu()
+    {
+        Console.Clear();
+        foreach (MainMenuOptions option in Enum.GetValues<MainMenuOptions>())
+        {
+            Console.WriteLine($"{(int)option}. {option.GetDescription()}");
+        }
+        while (true)
+        {
+            Console.Write("\nPlease enter your selection: ");
+            char key = char.ToLower(Console.ReadKey(true).KeyChar);
+            if (Enum.TryParse(key.ToString(), ignoreCase: true, out MainMenuOptions selected) && Enum.IsDefined(selected))
+            {
+                return selected;
+            }
+            Console.WriteLine("\nInvalid selection. Please try again.");
+        }
+    }
 
     public static Inspection AddInspection()
     {
-        (string name, int width) = _columns[0];
-        string partNumber = GetString(Math.Abs(width), name);
+        string partNumber = GetString(Math.Abs(Inspection.columns[0].Width), Inspection.columns[0].Header);
         DateOnly date = GetDate();
         Shift shift = GetShift();
-        (name, width) = _columns[3];
-        string inspector = GetString(Math.Abs(width), name);
+        string inspector = GetString(Math.Abs(Inspection.columns[3].Width), Inspection.columns[3].Header);
         InspectionResult result = GetResult();
-        (name, width) = _columns[5];
-        string? defect = result == InspectionResult.Pass ? 
-            null : 
-            GetString(Math.Abs(width), name);
+        string? defect = result == InspectionResult.Pass ?
+            null :
+            GetString(Math.Abs(Inspection.columns[5].Width), Inspection.columns[5].Header);
 
         return new(partNumber, date, shift, inspector, result, defect);
     }
@@ -35,7 +56,7 @@ public static class ConsoleUi
         Console.Clear();
         while (true)
         {
-            Console.Write($"Enter the {name}: ");
+            Console.Write($"Please enter the {name}: ");
             string returnName = Console.ReadLine() ?? "";
             returnName = returnName.Trim();
             if (returnName.Length > maxLength)
@@ -46,7 +67,7 @@ public static class ConsoleUi
                 return returnName;
         }
     }
-    
+
     private static DateOnly GetDate()
     {
         Console.Clear();
@@ -72,7 +93,7 @@ public static class ConsoleUi
         {
             Console.WriteLine($"{(int)shift}. {shift}");
         }
-        while(true)
+        while (true)
         {
             Console.Write("Select a Shift: ");
             if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out int choice)
@@ -130,7 +151,7 @@ public static class ConsoleUi
 
     private static void DisplayDivider()
     {
-        foreach (var (_, width) in _columns)
+        foreach (var (_, width) in Inspection.columns)
         {
             for (int i = 0; i < Math.Abs(width) + 1; i++)
             {
@@ -142,7 +163,7 @@ public static class ConsoleUi
 
     private static void DisplayHeader()
     {
-        foreach (var (header, width) in _columns)
+        foreach (var (header, width) in Inspection.columns)
         {
             Console.Write($"{PadCell(header, -Math.Abs(width))} ");
         }
@@ -151,14 +172,14 @@ public static class ConsoleUi
 
     private static void DisplayRow(Inspection entry)
     {
-        Console.Write($"{PadCell(entry.PartNumber, _columns[0].Width)} ");
-        Console.Write($"{PadCell(entry.Date.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture), _columns[1].Width)} ");
-        Console.Write($"{PadCell(entry.Shift.ToString(), _columns[2].Width)} ");
-        Console.Write($"{PadCell(entry.Inspector, _columns[3].Width)} ");
-        Console.Write($"{PadCell(entry.Result.ToString(), _columns[4].Width)} ");
+        Console.Write($"{PadCell(entry.PartNumber, Inspection.columns[0].Width)} ");
+        Console.Write($"{PadCell(entry.Date.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture), Inspection.columns[1].Width)} ");
+        Console.Write($"{PadCell(entry.Shift.ToString(), Inspection.columns[2].Width)} ");
+        Console.Write($"{PadCell(entry.Inspector, Inspection.columns[3].Width)} ");
+        Console.Write($"{PadCell(entry.Result.ToString(), Inspection.columns[4].Width)} ");
         if (entry.DefectType != null)
         {
-            Console.Write($"{PadCell(entry.DefectType, _columns[5].Width)}");
+            Console.Write($"{PadCell(entry.DefectType, Inspection.columns[5].Width)}");
         }
         Console.WriteLine();
     }
@@ -207,7 +228,7 @@ public static class ConsoleUi
         Console.WriteLine("\nResults by shift:");
         foreach (ShiftSummary shift in results)
         {
-            Console.Write($"{PadCell(shift.Shift.ToString(), _columns[2].Width)} ");
+            Console.Write($"{PadCell(shift.Shift.ToString(), Inspection.columns[2].Width)} ");
             Console.Write($"{shift.Passed}-Passed ");
             Console.Write($"{shift.Failed}-Failed ");
             Console.WriteLine($"{shift.Reworked}-Reworked");
