@@ -10,9 +10,9 @@ try
 {
     qualityLog = new InspectionLog(InspectionStorage.Load(saveFile));
 }
-catch(InspectionStorageException ex)
+catch (InspectionStorageException ex)
 {
-    ConsoleUi.ShowError(ex.Message);
+    ConsoleUi.ShowError(ex.Message, "Press any key to exit");
     return;
 }
 
@@ -30,7 +30,7 @@ while (running)
             }
             catch (InspectionStorageException ex)
             {
-                ConsoleUi.ShowError(ex.Message);
+                ConsoleUi.ShowError($"{ex.Message}\nYour last entry was not saved.", "Press any key to continue");
             }
             break;
         case MainMenuOptions.ViewAll:

@@ -1,23 +1,43 @@
-﻿using QualityLog;
+﻿namespace QualityLog.Test;
 
-namespace QualityLog.Test;
-
-public  class InspectionLogTests
+public class InspectionLogTests
 {
+    private readonly List<Inspection> _testList =
+        [
+        new("P-100", new DateOnly(2026, 1, 15), Shift.First, "Tester", InspectionResult.Pass, null),
+        new("Prick-E-5", new DateOnly(2026, 3, 25), Shift.Second, "Ian P. Freely", InspectionResult.Rework, "Missing Stripe")
+        ];
 
     [Fact]
-    public void Add_GetAllHasItem_ItemAdded()
+    public void Add_AddRecord_IncreaseCount()
     {
-        List<Inspection> testList =
-            [
-            new("P-100", new DateOnly(2026, 1, 15), Shift.First, "Tester", InspectionResult.Pass, null),
-            new("Prick-E-5", new DateOnly(2026, 3, 25), Shift.Second, "Ian P. Freely", InspectionResult.Rework, "Missing Stripe")
-            ];
+        var log = new InspectionLog(_testList);
+        int countBefore = log.Count;
 
-        InspectionLog testLog = new InspectionLog(testList);
+        log.Add(new("Summer Air", new DateOnly(2026, 4, 30), Shift.Third, "John Jacob Schmidt", InspectionResult.Fail, "Cold"));
 
-        testLog.Add(new("Summer Air", new DateOnly(2026, 4, 30), Shift.Third, "John Jacob Schmidt", InspectionResult.Fail, "Cold"));
+        Assert.Equal(countBefore + 1, log.Count);
+    }
 
-        Assert.False(testLog.GetAll() == testList);
+    [Fact]
+    public void Add_AddingInspection_InspectionAdded()
+    {
+        var log = new InspectionLog(_testList);
+        var added = new Inspection("Summer Air", new DateOnly(2026, 4, 30), Shift.Third, "John Jacob Schmidt", InspectionResult.Fail, "Cold");
+
+        log.Add(added);
+
+        Assert.Contains(added, log.GetAll());
+    }
+
+    [Fact]
+    public void Add_ToLog_DoesNotChangeOriginalList()
+    {
+        int originalListCount = _testList.Count;
+        var log = new InspectionLog(_testList);
+
+        log.Add(new Inspection("Summer Air", new DateOnly(2026, 4, 30), Shift.Third, "John Jacob Schmidt", InspectionResult.Fail, "Cold"));
+
+        Assert.Equal(originalListCount, _testList.Count);
     }
 }

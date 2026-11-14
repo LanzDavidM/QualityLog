@@ -3,7 +3,7 @@
 
 public class InspectionLog(List<Inspection> records)
 {
-    private readonly List<Inspection> _inspections = records;
+    private readonly List<Inspection> _inspections = [.. records];
 
     public int Count => _inspections.Count;
 

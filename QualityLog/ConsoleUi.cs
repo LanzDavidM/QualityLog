@@ -6,16 +6,16 @@ public static class ConsoleUi
 {
 
     private record Column(string Header, int Width);
-    private static readonly Column PartNumberColumn =   new ("Part Number", -Inspection.MaxPartNumberLength);
-    private static readonly Column DateColumn =         new ("Date", -10);
-    private static readonly Column ShiftColumn =        new ("Shift", -6);
-    private static readonly Column InspectorColumn =    new ("Inspector", -Inspection.MaxInspectionLength);
-    private static readonly Column ResultColumn =       new ("Result", -6);
-    private static readonly Column DefectColumn =       new ("Defect Type", -Inspection.MaxDefectTypeLength);
+    private static readonly Column PartNumberColumn = new("Part Number", -Inspection.MaxPartNumberLength);
+    private static readonly Column DateColumn = new("Date", -10);
+    private static readonly Column ShiftColumn = new("Shift", -6);
+    private static readonly Column InspectorColumn = new("Inspector", -Inspection.MaxInspectorLength);
+    private static readonly Column ResultColumn = new("Result", -6);
+    private static readonly Column DefectColumn = new("Defect Type", -Inspection.MaxDefectTypeLength);
     private static readonly List<Column> _columns =
         [PartNumberColumn, DateColumn, ShiftColumn, InspectorColumn, ResultColumn, DefectColumn];
 
-    public static void ShowError(string message)
+    public static void ShowError(string message, string prompt)
     {
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Yellow;
@@ -24,7 +24,7 @@ public static class ConsoleUi
         Console.WriteLine(message);
         DisplayDivider();
         Console.ResetColor();
-        Console.WriteLine("Press any key to exit");
+        Console.WriteLine(prompt);
         Console.ReadKey(true);
     }
 
@@ -52,11 +52,11 @@ public static class ConsoleUi
         string partNumber = GetString(Inspection.MaxPartNumberLength, PartNumberColumn.Header);
         DateOnly date = GetDate();
         Shift shift = GetShift();
-        string inspector = GetString(Inspection.MaxInspectionLength, InspectorColumn.Header);
+        string inspector = GetString(Inspection.MaxInspectorLength, InspectorColumn.Header);
         InspectionResult result = GetResult();
         string? defect = result == InspectionResult.Pass ?
             null :
-            GetString(Math.Abs(Inspection.MaxDefectTypeLength), DefectColumn.Header);
+            GetString(Inspection.MaxDefectTypeLength, DefectColumn.Header);
 
         return new(partNumber, date, shift, inspector, result, defect);
     }

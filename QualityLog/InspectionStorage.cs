@@ -5,7 +5,7 @@ namespace QualityLog;
 
 public static class InspectionStorage
 {
-    private static readonly JsonSerializerOptions _jsonOptions = new ()
+    private static readonly JsonSerializerOptions _jsonOptions = new()
     {
         Converters = { new JsonStringEnumConverter() },
         WriteIndented = true
@@ -13,22 +13,18 @@ public static class InspectionStorage
 
     public static void Save(IReadOnlyList<Inspection> inspections, string path)
     {
+        string tempPath = path + ".tmp";
         string jsonString = JsonSerializer.Serialize(inspections, _jsonOptions);
         try
         {
-            File.WriteAllText("TempQualityLog.json", jsonString);
+            File.WriteAllText(tempPath, jsonString);
+            File.Move(tempPath, path, overwrite: true);
         }
-        catch (IOException ex)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             throw new InspectionStorageException(
                 $"Problem accessing file at: {path}", ex);
         }
-        catch (UnauthorizedAccessException ex)
-        {
-            throw new InspectionStorageException(
-                $"Problem accessing file at: {path}", ex);
-        }
-        File.Move("TempQualityLog.json", path, overwrite: true);
     }
 
     public static List<Inspection> Load(string path)
@@ -62,7 +58,7 @@ public static class InspectionStorage
             return [];
         for (int i = 0; i < newLog.Count; i++)
         {
-            if (!newLog[i].IsValid())
+            if (newLog[i] is null || !newLog[i].IsValid())
                 throw new InspectionStorageException($"Invalid data at record number: {i}");
         }
         return newLog;

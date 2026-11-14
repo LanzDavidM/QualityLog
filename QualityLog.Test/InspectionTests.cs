@@ -1,6 +1,4 @@
-﻿using QualityLog;
-
-namespace QualityLog.Test;
+﻿namespace QualityLog.Test;
 
 public class InspectionTests
 {

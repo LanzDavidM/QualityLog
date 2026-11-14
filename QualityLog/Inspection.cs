@@ -3,7 +3,7 @@
 public record Inspection(string PartNumber, DateOnly Date, Shift Shift, string Inspector, InspectionResult Result, string? DefectType)
 {
     public const int MaxPartNumberLength = 15;
-    public const int MaxInspectionLength = 20;
+    public const int MaxInspectorLength = 20;
     public const int MaxDefectTypeLength = 20;
 
     public bool IsValid()
@@ -14,11 +14,11 @@ public record Inspection(string PartNumber, DateOnly Date, Shift Shift, string I
             return false;
         if (!Enum.IsDefined(Shift))
             return false;
-        if (string.IsNullOrWhiteSpace(Inspector) || Inspector.Length > MaxInspectionLength)
+        if (string.IsNullOrWhiteSpace(Inspector) || Inspector.Length > MaxInspectorLength)
             return false;
         if (!Enum.IsDefined(Result))
             return false;
-        if (Result == InspectionResult.Pass) // && DefectType == null)
+        if (Result == InspectionResult.Pass)
             return DefectType is null;
         if (string.IsNullOrWhiteSpace(DefectType) || DefectType.Length > MaxDefectTypeLength)
             return false;

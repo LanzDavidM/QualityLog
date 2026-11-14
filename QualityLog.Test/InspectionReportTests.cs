@@ -1,10 +1,8 @@
-﻿using QualityLog;
-
-namespace QualityLog.Test;
+﻿namespace QualityLog.Test;
 
 public class InspectionReportTests
 {
-    
+
     private static Inspection Make(Shift shift, InspectionResult result, string? defect = null)
     {
         return new Inspection("P-1", new DateOnly(2026, 1, 1), shift, "Tester", result, defect);
@@ -25,8 +23,8 @@ public class InspectionReportTests
             Make(Shift.Third,  InspectionResult.Fail,   "Wrinkles"),
             Make(Shift.First,  InspectionResult.Rework, "Missing TaB")
         ];
-    }  
-    
+    }
+
     [Fact]
     public void PassRate_EmptyLog_ReturnsZero()
     {
