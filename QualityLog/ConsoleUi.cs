@@ -5,7 +5,16 @@ namespace QualityLog;
 public static class ConsoleUi
 {
 
-    //ConsoleUi.ShowError(ex.Message);
+    private record Column(string Header, int Width);
+    private static readonly Column PartNumberColumn =   new ("Part Number", -Inspection.MaxPartNumberLength);
+    private static readonly Column DateColumn =         new ("Date", -10);
+    private static readonly Column ShiftColumn =        new ("Shift", -6);
+    private static readonly Column InspectorColumn =    new ("Inspector", -Inspection.MaxInspectionLength);
+    private static readonly Column ResultColumn =       new ("Result", -6);
+    private static readonly Column DefectColumn =       new ("Defect Type", -Inspection.MaxDefectTypeLength);
+    private static readonly List<Column> _columns =
+        [PartNumberColumn, DateColumn, ShiftColumn, InspectorColumn, ResultColumn, DefectColumn];
+
     public static void ShowError(string message)
     {
         Console.Clear();
@@ -15,6 +24,7 @@ public static class ConsoleUi
         Console.WriteLine(message);
         DisplayDivider();
         Console.ResetColor();
+        Console.WriteLine("Press any key to exit");
         Console.ReadKey(true);
     }
 
@@ -39,14 +49,14 @@ public static class ConsoleUi
 
     public static Inspection AddInspection()
     {
-        string partNumber = GetString(Math.Abs(Inspection.columns[0].Width), Inspection.columns[0].Header);
+        string partNumber = GetString(Inspection.MaxPartNumberLength, PartNumberColumn.Header);
         DateOnly date = GetDate();
         Shift shift = GetShift();
-        string inspector = GetString(Math.Abs(Inspection.columns[3].Width), Inspection.columns[3].Header);
+        string inspector = GetString(Inspection.MaxInspectionLength, InspectorColumn.Header);
         InspectionResult result = GetResult();
         string? defect = result == InspectionResult.Pass ?
             null :
-            GetString(Math.Abs(Inspection.columns[5].Width), Inspection.columns[5].Header);
+            GetString(Math.Abs(Inspection.MaxDefectTypeLength), DefectColumn.Header);
 
         return new(partNumber, date, shift, inspector, result, defect);
     }
@@ -151,7 +161,7 @@ public static class ConsoleUi
 
     private static void DisplayDivider()
     {
-        foreach (var (_, width) in Inspection.columns)
+        foreach (var (_, width) in _columns)
         {
             for (int i = 0; i < Math.Abs(width) + 1; i++)
             {
@@ -163,7 +173,7 @@ public static class ConsoleUi
 
     private static void DisplayHeader()
     {
-        foreach (var (header, width) in Inspection.columns)
+        foreach (var (header, width) in _columns)
         {
             Console.Write($"{PadCell(header, -Math.Abs(width))} ");
         }
@@ -172,14 +182,14 @@ public static class ConsoleUi
 
     private static void DisplayRow(Inspection entry)
     {
-        Console.Write($"{PadCell(entry.PartNumber, Inspection.columns[0].Width)} ");
-        Console.Write($"{PadCell(entry.Date.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture), Inspection.columns[1].Width)} ");
-        Console.Write($"{PadCell(entry.Shift.ToString(), Inspection.columns[2].Width)} ");
-        Console.Write($"{PadCell(entry.Inspector, Inspection.columns[3].Width)} ");
-        Console.Write($"{PadCell(entry.Result.ToString(), Inspection.columns[4].Width)} ");
+        Console.Write($"{PadCell(entry.PartNumber, PartNumberColumn.Width)} ");
+        Console.Write($"{PadCell(entry.Date.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture), DateColumn.Width)} ");
+        Console.Write($"{PadCell(entry.Shift.ToString(), ShiftColumn.Width)} ");
+        Console.Write($"{PadCell(entry.Inspector, InspectorColumn.Width)} ");
+        Console.Write($"{PadCell(entry.Result.ToString(), ResultColumn.Width)} ");
         if (entry.DefectType != null)
         {
-            Console.Write($"{PadCell(entry.DefectType, Inspection.columns[5].Width)}");
+            Console.Write($"{PadCell(entry.DefectType, DefectColumn.Width)}");
         }
         Console.WriteLine();
     }
@@ -228,7 +238,7 @@ public static class ConsoleUi
         Console.WriteLine("\nResults by shift:");
         foreach (ShiftSummary shift in results)
         {
-            Console.Write($"{PadCell(shift.Shift.ToString(), Inspection.columns[2].Width)} ");
+            Console.Write($"{PadCell(shift.Shift.ToString(), ShiftColumn.Width)} ");
             Console.Write($"{shift.Passed}-Passed ");
             Console.Write($"{shift.Failed}-Failed ");
             Console.WriteLine($"{shift.Reworked}-Reworked");

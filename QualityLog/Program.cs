@@ -1,8 +1,7 @@
 ﻿using QualityLog;
 
 string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "QualityLog");
-if (!Directory.Exists(savePath))
-    Directory.CreateDirectory(savePath);
+Directory.CreateDirectory(savePath);
 string saveFile = Path.Combine(savePath, "inspections.json");
 
 InspectionLog qualityLog;
@@ -25,7 +24,14 @@ while (running)
     {
         case MainMenuOptions.AddInspection:
             qualityLog.Add(ConsoleUi.AddInspection());
-            InspectionStorage.Save(qualityLog.GetAll(), saveFile);
+            try
+            {
+                InspectionStorage.Save(qualityLog.GetAll(), saveFile);
+            }
+            catch (InspectionStorageException ex)
+            {
+                ConsoleUi.ShowError(ex.Message);
+            }
             break;
         case MainMenuOptions.ViewAll:
             ConsoleUi.DisplayAllRecords(qualityLog);

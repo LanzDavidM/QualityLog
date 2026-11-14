@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Reflection;
 
 namespace QualityLog;
 
@@ -16,14 +15,4 @@ public enum MainMenuOptions
 
     [Description("Exit program")]
     Exit = 9
-}
-
-public static class EnumExtensions
-{
-    public static string GetDescription(this Enum value)
-    {
-        var field = value.GetType().GetField(value.ToString());
-        var attr = field?.GetCustomAttribute<DescriptionAttribute>();
-        return attr?.Description ?? value.ToString();
-    }
 }
