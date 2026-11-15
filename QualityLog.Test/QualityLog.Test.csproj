@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QualityLog\QualityLog.csproj" />
+    <ProjectReference Include="..\QualityLog.Core\QualityLog.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
