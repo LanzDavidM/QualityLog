@@ -2,6 +2,8 @@
 
 public record Inspection(string PartNumber, DateOnly Date, Shift Shift, string Inspector, InspectionResult Result, string? DefectType)
 {
+    public int Id { get; init; }
+    
     public const int MaxPartNumberLength = 15;
     public const int MaxInspectorLength = 20;
     public const int MaxDefectTypeLength = 20;
